@@ -25,15 +25,29 @@
         <div class="col-6 cod-md-4 col-lg-2 mb-3">
             <div class="card">
                     <div class="card-body">
-                        <img src="{{thumbnail}}" width="90%">
+                        <img src="{{check thumbnail}}" width="90%">
                         <div class="ellipsis pt-3" style="font-size:0.8rem;">
                             {{title}}
                         </div>
                 </div>
-                <div class="card-footer">{{price}}</div>
+                <div class="card-footer">{{format price}}</div>
             </div>
         </div>
     {{/each}} 
+</script>
+
+<script>
+    Handlebars.registerHelper("check", function(thumbnail){
+        if(thumbnail){
+            return thumbnail; //true
+        }else {
+            return "http://via.placeholder.com/120x170";
+        }
+    });
+
+    Handlebars.registerHelper("format", function(price){
+        return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '원';
+    });
 </script>
 
 <script>
