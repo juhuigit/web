@@ -10,6 +10,9 @@
   </head>
   <body>
     <div class="container">
+      <!-- 서버에서 돌아가기 때문에 %를 사용해서 서버 명령어 사용
+       ejs파일은 HTML형식
+       include : 현재 페이지에 포함시키겠다는 의미 -->
       <%-include('header.ejs')%>
       <%-include(pageName)%>
       <%-include('footer.ejs')%>

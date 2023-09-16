@@ -1,5 +1,67 @@
 <div class="row my-5">
     <div class="col">
-        <h1 class="text-center">홈페이지입니다...</h1>
+        <!-- 검색폼 -->
+        <div class="row mb-2 justify-content-end">
+            <form name="frm" class="col-6 col-md-4 col-lg-3">
+                <div class="input-group">
+                    <input name="query" class="form-control" value="자바">
+                    <button class="btn btn-primary">검색</button>
+                </div>
+            </form>
+        </div>
+        <!-- 도서검색결과-->
+        <div id="div_books" class="row"></div>
     </div>
 </div>
+<!-- 도서검색 템플릿 -->
+<script type="x-handlebars-template" id="temp_books">
+    {{#each documents}}
+        <div class="col-6 cod-md-4 col-lg-2 mb-3">
+            <div class="card">
+                    <div class="card-body">
+                        <img src="{{thumbnail}}" width="90%">
+                        <div class="ellipsis pt-3" style="font-size:0.8rem;">
+                            {{title}}
+                        </div>
+                </div>
+                <div class="card-footer">{{price}}</div>
+            </div>
+        </div>
+    {{/each}} 
+</script>
+
+<script>
+    let query=$(frm.query).val();
+    //함수선언
+    getBooks();
+    // name을 셀렉트 할 때는 아무것도 안붙음
+    // submit(번쩍) 하는거 안하게끔 하는 코드
+    // 시험 예시 : frm 비워두고 적기
+    $(frm).on("submit", function(e){
+        e.preventDefault();
+        query=$(frm.query).val();
+        // 시험 예시 : frm.query 비워두기
+        getBooks();
+        // getBooks(); 자리 비워두기 
+    });
+
+    function getBooks(){
+        //jquery 이용, $ = jquery 선택자
+        //ajax 형식 $.ajax({}) 암기
+        $.ajax({
+            type:"get",
+            url:"https://dapi.kakao.com/v3/search/book?target=title",
+            headers:{"Authorization":"KakaoAK 268ad2d02cdbe6617c11fd136c2b2373"},
+            data:{query:query, page:1, size:6}, //size는 12의 최대공약수
+            success:function(result){
+                console.log(result) // 6개 불러온 책이 result로 값이 들어감.(콘솔에서 확인)
+                // html로 컴파일
+                let temp=Handlebars.compile($("#temp_books").html()) //#은 id 선택자
+                // 시험 예시 : #temp_books 자리를 비워두면 쓰기
+                // 답이 문제 안에 다 있게 할 것임.
+                $("#div_books").html(temp(result));
+                // 시험 예시 : #div_books, result 자리 비워두면 쓰기
+            }
+        });
+    }
+</script>
