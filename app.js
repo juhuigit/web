@@ -26,6 +26,7 @@ booksRouter(변수) 대신 require('./routes/books') 바로 대입해줘도 됨.
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/books', booksRouter);
+app.use('/locals', require('./routes/locals'));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

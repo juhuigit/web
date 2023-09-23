@@ -1,0 +1,117 @@
+<div class="row">
+    <div class="col">
+        <h1 class="text-center">지역검색</h1>
+        <!-- 검색폼 -->
+        <div class="row mb-2 justify-content-end">
+            <form name="frm" class="col-6 col-md-4 col-lg-3">
+                <div class="input-group">
+                    <input name="query" class="form-control" value="인하대학교">
+                    <button class="btn btn-primary">검색</button>
+                </div>
+            </form>
+        </div>
+        <!-- 아래 getlocals에서 불러온 다큐먼트 출력하기 위한 div -->
+        <div id="div_locals"></div>
+
+        <!-- 페이지 이동버튼 -->
+        <div class="text-center">
+            <button id="prev" class="btn btn-primary">이전</button>
+            <span id="span_page" class="mx-3">1/10</span>
+            <button id="next" class="btn btn-primary">다음</button>
+        </div>
+
+        <!-- 지도 출력 -->
+        <div id="map" style="width:100%; height:400px;" class="my-5"></div>
+    </div>
+</div>
+
+<!-- div_locals에 들어갈 템플릿 -->
+<!-- html 태그가 아니기에 컴파일 해줘야함. 하단 스크립트에 let temp 부분-->
+<script type="x-handlebars-template" id="temp_locals">
+    <table class="table table-striped">
+        <!-- 반복문 : each -->
+        {{#each documents}}
+            <tr>
+                <td>{{place_name}}</td>
+                <td>{{address_name}}</td>
+                <td>{{phone}}</td>
+                <td><button class="btn btn-primary" x="{{x}}" y="{{y}}">위치보기</button></td>
+            </tr>
+        {{/each}}
+    </table>
+</script>
+
+<script>
+    let query = $(frm.query).val();
+    let page = 1;
+    let size = 5;
+
+    getLocals();
+
+    // 위치보기 버튼을 클릭한 경우
+    $("#div_locals").on("click", "button", function(){
+        let x = $(this).attr("x");
+        let y = $(this).attr("y");
+        var container = document.getElementById('map');
+		var options = {
+			center: new kakao.maps.LatLng(y, x),
+			level: 3
+		};
+
+		var map = new kakao.maps.Map(container, options);
+        var markerPosition  = new kakao.maps.LatLng(y, x);  // 마커가 표시될 위치입니다 
+        var marker = new kakao.maps.Marker({  // 마커를 생성합니다
+            position: markerPosition
+        });
+        marker.setMap(map);  // 마커가 지도 위에 표시되도록 설정합니다
+    });
+    // submit이벤트(깜빡) 안하게하기
+    $(frm).on("submit", function(event){
+        event.preventDefault();
+        query=$(frm.query).val();
+        // 검색할 때마다 페이지값 1로 변경
+        page=1;
+        // 데이터값 불러오기
+        getLocals();
+    });
+
+    // 페이지 감소
+    $("#prev").on("click", function(){
+        page--;
+        getLocals();
+    });
+
+    // 페이지 증가
+    $("#next").on("click", function(){
+        page++;
+        getLocals();
+    });
+
+    function getLocals(){
+        // 이건 외워야함. 필수로 가져와야하는 것들
+        $.ajax({
+            type:"get",
+            url:"https://dapi.kakao.com/v2/local/search/keyword.json",
+            headers:{"Authorization":"KakaoAK 268ad2d02cdbe6617c11fd136c2b2373"},
+            data:{query:query, page:page, size:size},
+            success:function(data){
+                console.log(data);
+                let temp = Handlebars.compile($("#temp_locals").html());
+                $("#div_locals").html(temp(data)); // 템플릿 컴파일한 곳에 data를 넣어준 후 div_locals에 넣어줌.
+
+                // 페이지 버튼
+                let last = Math.ceil(data.meta.pageable_count/size);
+                $("#span_page").html(page + "/" + last);
+
+                // 이전 비활성화
+                if(page==1) $("#prev").attr("disabled", true)
+                else $("#prev").attr("disabled", false);
+
+                // 다음 비활성화
+                if(data.meta.is_end) $("#next").attr("disabled", true)
+                else $("#next").attr("disabled", false);
+
+            }
+        })
+    }
+</script>

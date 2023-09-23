@@ -1,3 +1,10 @@
+<style>
+    #div_books img {
+        cursor: pointer;
+    }
+</style>
+
+
 <div class="row my-5">
     <div class="col">
         <!-- 검색폼 -->
@@ -25,7 +32,10 @@
         <div class="col-6 cod-md-4 col-lg-2 mb-3">
             <div class="card">
                     <div class="card-body">
-                        <img src="{{check thumbnail}}" width="90%">
+                        <!-- @index : 자동으로 0,1,2, ... 숫자 생성 -->
+                        <!-- 썸네일 이미지를 클릭하면 div_books로 들어감. -->
+                        <!-- check : 하단에 작성한 함수 이름 -->
+                        <img src="{{check thumbnail}}" width="90%" index="{{@index}}">
                         <div class="ellipsis pt-3" style="font-size:0.8rem;">
                             {{title}}
                         </div>
@@ -33,6 +43,8 @@
                 <div class="card-footer">{{format price}}</div>
             </div>
         </div>
+
+        <%-include('books/modal.ejs')%>
     {{/each}} 
 </script>
 
@@ -55,6 +67,13 @@
     let page=1;
     //함수선언
     getBooks();
+
+    // 이미지를 클릭한 경우
+    $("#div_books").on("click", "img", function(){
+        let index=$(this).attr("index");
+        $("#modal" + index).modal("show");
+    });
+
     // name을 셀렉트 할 때는 아무것도 안붙음
     // submit(번쩍) 하는거 안하게끔 하는 코드
     // 시험 예시 : frm 비워두고 적기
